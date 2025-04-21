@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ErrorIcon = ({ width }) => {
+const ErrorIcon = ({ width }: { width: number | string | undefined }) => {
   return (
     <svg
       width={width}

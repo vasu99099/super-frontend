@@ -67,7 +67,6 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
       dispatch(getCustomersById(customerId));
     }
   }, []);
-  console.log('customer', customer);
   const {
     errors,
     values,

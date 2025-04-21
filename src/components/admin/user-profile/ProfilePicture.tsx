@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useModal } from '@/hooks/useModal';
 import { dispatch, useSelector } from '@/store';
-import { S3_BASE_URL } from '@/constant/Constants';
+import { IMAGE_FILE_ALLOW, MAX_FILE_SIZE_2_MB, S3_BASE_URL } from '@/constant/Constants';
 import { Modal } from '@/components/ui/modal';
 import FileUploader from '@/components/form/uploadfile/FileUploader';
 import { useFormik } from 'formik';
@@ -12,17 +12,11 @@ import * as Yup from 'yup';
 import Button from '@/components/ui/button/Button';
 import { updateUserProfileImage } from '@/store/slices/authSlice';
 
-const FILE_ALLOW = {
-  'image/jpeg': ['.jpg', '.jpeg'],
-  'image/png': ['.png']
-};
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
 const profileImageSchema = Yup.object({
   profile_image: Yup.mixed<File>()
     .required('Image is required')
     .test('fileSize', 'File must be less than 2MB', (file) => {
-      return file && file.size <= MAX_FILE_SIZE;
+      return file && file.size <= MAX_FILE_SIZE_2_MB;
     })
     .test('fileType', 'Only JPG, PNG allowed', (file) => {
       return file && ['image/jpeg', 'image/png'].includes(file.type);
@@ -115,8 +109,8 @@ export default function UserMetaCard() {
             <div className="mt-14">
               <FileUploader
                 onDropAccepted={handleFileChange}
-                accept={FILE_ALLOW}
-                maxSize={MAX_FILE_SIZE}
+                accept={IMAGE_FILE_ALLOW}
+                maxSize={MAX_FILE_SIZE_2_MB}
                 multiple={false}
                 title={'Drag & drops file or'}
                 linkTitle={'Browse'}

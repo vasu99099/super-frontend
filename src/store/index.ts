@@ -8,13 +8,19 @@ import {
 import categorySlice from './slices/categorySlice';
 import customerSlice from './slices/customerSlice';
 import globalSlice from './slices/globalSlice';
+import dashboardSlice from './slices/dashboardSlice';
+import productSlice from './slices/productSlice';
+import dosageSlice from './slices/dosageSlice';
 
 const store = configureStore({
   reducer: {
     global: globalSlice,
     auth: authReducer,
+    dashboard: dashboardSlice,
     category: categorySlice,
-    customer: customerSlice
+    customer: customerSlice,
+    product: productSlice,
+    dosage: dosageSlice
   }
 });
 

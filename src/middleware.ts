@@ -4,8 +4,14 @@ import { PROTECTED_ROUTES, PUBLIC_ROUTES, ROUTE_PATH } from './constant/Routes';
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const isProtectedRoute = PROTECTED_ROUTES.includes(path);
+  // const isProtectedRoute = PROTECTED_ROUTES.includes(path);
   const isPublicRoute = PUBLIC_ROUTES.includes(path);
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => {
+    // Replace placeholders like ":id" with regex pattern
+    const regexPath = route.replace(/:[^/]+/g, '[^/]+');
+    const regex = new RegExp(`^${regexPath}(/|$|\\?)`);
+    return regex.test(path);
+  });
 
   const cookie = (await cookies()).get('authToken')?.value;
 

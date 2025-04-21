@@ -1,7 +1,7 @@
 'use client';
 import { useDropzone } from 'react-dropzone';
 import Placeholder from './Placeholder';
-import ErrorIcon from './ErrorIcon';
+import ErrorIcon from '@/icons/components/ErrorIcon';
 
 type FileUploaderType = {
   error?: string;

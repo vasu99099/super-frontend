@@ -1,12 +1,16 @@
-'use client';
-import { AppDispatch } from '@/store';
-import { login } from '@/store/slices/authSlice';
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React from 'react';
+import type { Metadata } from 'next';
+import { DashboardComponent } from '@/components/admin/dashboard';
 
-const page = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  return <div>dashboard</div>;
+export const metadata: Metadata = {
+  title: 'Super Dashboard ',
+  description: 'This is Next.js Home for TailAdmin Dashboard Template'
 };
 
-export default page;
+export default function Ecommerce() {
+  return (
+    <div>
+      <DashboardComponent />
+    </div>
+  );
+}

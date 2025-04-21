@@ -81,6 +81,24 @@ export const getCategories = (
     }
   };
 };
+export const getAllCategoriesList = () => {
+  return async (dispatch: AppDispatch) => {
+    dispatch(categorySlice.actions.hasError(null));
+    dispatch(categorySlice.actions.startLoading());
+    try {
+      const response = await api.get(`${API_ROUTES.CATEGORY.GET_CATEGORY}`);
+
+      if (response.status === 200) {
+        dispatch(categorySlice.actions.setCategories(response.data.data));
+      }
+      return response.data;
+    } catch (error) {
+      return error;
+    } finally {
+      dispatch(categorySlice.actions.stopLoading());
+    }
+  };
+};
 
 export const getCategoriesById = (id: string | number) => {
   return async (dispatch: AppDispatch) => {

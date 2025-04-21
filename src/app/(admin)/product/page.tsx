@@ -1,3 +1,4 @@
+import ProductListing from '@/components/admin/product/ProductListing';
 import { Metadata } from 'next';
 import React from 'react';
 
@@ -14,7 +15,9 @@ export default async function Products() {
         <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
           Products
         </h3>
-        <div className="space-y-6">{/* <CategoryListing /> */}</div>
+        <div className="space-y-6">
+          <ProductListing />
+        </div>
       </div>
     </div>
   );

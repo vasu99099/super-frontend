@@ -75,7 +75,7 @@ function CustomTable(props: TableProps) {
       if (id && props.hasActions && 'handleDelete' in props) {
         const isConfirmed = await confirm('Are you sure you want to delete this item?');
         if (isConfirmed) {
-          props.handleDelete(id);
+          props.handleDelete(id, page, order, orderBy, rowsPerPage, searchText);
         }
       }
     },

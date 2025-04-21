@@ -1,13 +1,15 @@
 'use client';
 
+import React, { useEffect } from 'react';
+import { Bounce, ToastContainer } from 'react-toastify';
+
 import { useSidebar } from '@/context/SidebarContext';
 import AppHeader from '@/layoutes/AppHeader';
 import AppSidebar from '@/layoutes/AppSidebar';
 import Backdrop from '@/layoutes/Backdrop';
+
 import { dispatch, useSelector } from '@/store';
 import { fetchUserDetails } from '@/store/slices/authSlice';
-import React, { useEffect } from 'react';
-import { Bounce, ToastContainer } from 'react-toastify';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();

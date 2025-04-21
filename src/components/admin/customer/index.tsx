@@ -67,6 +67,16 @@ const Customer = () => {
       openModal();
     }
   };
+  const handleAddSuggestion = (row: customerType) => {
+    if (row.customer_id) {
+      router.push(ROUTE_PATH.ADMIN.DOSAGE_SUGGESTION.ADD_DOSAGE_SUGGESTION(row.customer_id));
+    }
+  };
+  const handleViewCustomer = (row: customerType) => {
+    if (row.customer_id) {
+      router.push(ROUTE_PATH.ADMIN.customer.DETAIL(row.customer_id));
+    }
+  };
   const handleEditFarm = (id: number, row: customerType) => {
     if (row.customer_id) {
       setFarmEdit(true);
@@ -101,12 +111,32 @@ const Customer = () => {
             <Button
               size="sm"
               onClick={() => {
+                handleAddSuggestion(row as customerType);
+              }}
+              key="add_sugg"
+              className="!p-1 !px-2 border"
+              variant="primary">
+              + Suggestion
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
                 handleAddFarm(row as customerType);
               }}
               key="add_cat"
               className="!p-1 !px-2 border"
               variant="secondary">
               + Farm
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                handleViewCustomer(row as customerType);
+              }}
+              key="add_view"
+              className="!p-1 !px-2 border"
+              variant="secondary">
+              View
             </Button>
           </>
         )}
