@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Outfit } from 'next/font/google';
 import Provider from '@/providers/Provider';
 import './globals.css';
+import { Suspense } from 'react';
 
 const outfit = Outfit({
   variable: '--font-outfit-sans',
@@ -17,7 +18,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en">
       <body className={`${outfit.variable} dark:bg-gray-900`}>
-        <Provider>{children}</Provider>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Provider>{children}</Provider>
+        </Suspense>
       </body>
     </html>
   );

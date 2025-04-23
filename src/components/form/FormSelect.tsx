@@ -18,7 +18,7 @@ interface SelectComponentProps {
   labelKey?: string;
   ValueKey?: string;
   isAsync?: boolean;
-  onLoadOption?: (input: string) => Promise<T[]>;
+  onLoadOption?: (input: string) => Promise<any[]>;
 }
 const customStyles = (error = false) => {
   return {
