@@ -142,7 +142,7 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
                 defaultValue={
                   customer?.village && isEdit
                     ? { value: customer.village.id, label: customer.village.name }
-                    : undefined ?? undefined
+                    : undefined
                 }
                 options={villageOpt}
                 name="village_id"
