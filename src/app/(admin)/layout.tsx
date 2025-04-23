@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!user) {
       dispatch(fetchUserDetails());
     }
-  }, [dispatch, user]);
+  }, [user]);
 
   return (
     <div className="min-h-screen xl:flex">

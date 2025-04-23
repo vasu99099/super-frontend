@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
 import Label from '@/components/form/Label';
 import Input from '@/components/form/input/InputField';
-import Button from '@/components/ui/button/Button';
-import { useFormik } from 'formik';
-import { dispatch, useSelector } from '@/store';
-import * as Yup from 'yup';
-import TextArea from '@/components/form/input/TextArea';
-import { AddCategory, updateCategory } from '@/store/slices/categorySlice';
-import Alert from '@/components/common/Alert';
-import RefreshIcon from '@/icons/components/RefreshIcon';
 import SelectComponent from '@/components/form/FormSelect';
-import { getVillageList } from '@/store/slices/globalSlice';
+import Button from '@/components/ui/button/Button';
+import Alert from '@/components/common/Alert';
+
+import RefreshIcon from '@/icons/components/RefreshIcon';
 import { FarmType, customerType } from '@/types/customerType';
+import { getVillageList } from '@/store/slices/globalSlice';
+import { dispatch, useSelector } from '@/store';
 import { AddCustomerFarm, updateFarm } from '@/store/slices/customerSlice';
 
 const validationSchema = Yup.object({
@@ -22,14 +22,8 @@ const validationSchema = Yup.object({
     .required('Farm name is required'),
   customer_id: Yup.number().integer('Invalid Customer').required('Customer is required'),
   village_id: Yup.number().integer('Invalid Village').required('Village is required'),
-  longitude: Yup.number()
-    .nullable()
-    .max(9999999.9999999, 'Longitude must be a decimal number')
-    .optional(),
-  latitude: Yup.number()
-    .nullable()
-    .max(9999999.9999999, 'Latitude must be a decimal number')
-    .optional()
+  longitude: Yup.number().nullable().min(-180, 'Invalid Longitude').max(180, 'Invalid Longitude'),
+  latitude: Yup.number().nullable().min(-90, 'Invalid Latitude').max(90, 'Invalid Latitude')
 });
 
 const AddFarm = ({
@@ -46,10 +40,8 @@ const AddFarm = ({
   const { isLoading, options: villageOpt } = useSelector((state) => state.global.village);
 
   useEffect(() => {
-    if (villageOpt.length === 0) {
-      dispatch(getVillageList());
-    }
-  }, []);
+    if (villageOpt.length === 0) dispatch(getVillageList());
+  }, [villageOpt]);
 
   const {
     errors,
@@ -100,7 +92,7 @@ const AddFarm = ({
     }
   });
 
-  const handleGetLocation = () => {
+  const handleGetLocation = useCallback(() => {
     setLocationLoader(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -116,7 +108,7 @@ const AddFarm = ({
       alert('Geolocation is not supported by this browser.');
     }
     setLocationLoader(false);
-  };
+  }, [setFieldValue]);
 
   if (!customer) {
     return <p>No Customer Selected</p>;
@@ -162,7 +154,6 @@ const AddFarm = ({
                   isSearchable
                   isLoading={isLoading}
                   onChange={(e) => {
-                    console.log('e', e);
                     setFieldValue('village_id', e.value);
                   }}
                 />
@@ -176,7 +167,7 @@ const AddFarm = ({
                     value={values.longitude?.toString() ?? ''}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    name="longitude" // Removed unnecessary dot (.) prefix in the name
+                    name="longitude"
                     hint={errors.longitude}
                     disabled
                   />
@@ -186,11 +177,11 @@ const AddFarm = ({
                   <Label>Latitude</Label>
                   <Input
                     type="text"
-                    error={touched.latitude && errors.latitude ? true : false} // Corrected to use latitude
-                    value={values.latitude?.toString() ?? ''} // Corrected to use latitude
+                    error={touched.latitude && errors.latitude ? true : false}
+                    value={values.latitude?.toString() ?? ''}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    name="latitude" // Corrected name
+                    name="latitude"
                     hint={errors.latitude}
                     disabled
                   />
@@ -210,18 +201,6 @@ const AddFarm = ({
                   </Button>
                 </div>
               </div>
-
-              {/* <div className="col-span-2 lg:col-span-1">
-                <Label>Description</Label>
-                <TextArea
-                  error={touched.description && errors.description ? true : false}
-                  value={values.description}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="description"
-                  hint={errors.description}
-                />
-              </div> */}
             </div>
           </div>
         </div>

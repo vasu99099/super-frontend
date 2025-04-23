@@ -1,22 +1,24 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useFormik } from 'formik';
+import { toast } from 'react-toastify';
+import * as Yup from 'yup';
+
 import Label from '@/components/form/Label';
 import Input from '@/components/form/input/InputField';
 import Button from '@/components/ui/button/Button';
-import { useFormik } from 'formik';
-import { dispatch, useSelector } from '@/store';
-import * as Yup from 'yup';
 import TextArea from '@/components/form/input/TextArea';
 import Alert from '@/components/common/Alert';
-import { AddCustomer, getCustomersById, updateCustomer } from '@/store/slices/customerSlice';
 import Checkbox from '@/components/form/input/Checkbox';
-import RefreshIcon from '@/icons/components/RefreshIcon';
 import ComponentCard from '@/components/common/ComponentCard';
 import SelectComponent from '@/components/form/FormSelect';
-import { getVillageList } from '@/store/slices/globalSlice';
-import { useParams, useRouter } from 'next/navigation';
 import SectionLoader from '@/components/common/SectionLoader';
-import { toast } from 'react-toastify';
+
+import { AddCustomer, getCustomersById, updateCustomer } from '@/store/slices/customerSlice';
+import { getVillageList } from '@/store/slices/globalSlice';
+import { dispatch, useSelector } from '@/store';
+
 import { ROUTE_PATH } from '@/constant/Routes';
 
 const validationSchema = Yup.object({
@@ -38,20 +40,11 @@ const validationSchema = Yup.object({
     .optional()
     .nullable()
     .typeError('Address must be a string'),
-  village_id: Yup.number().integer('Invalid Village').required('Village is required'),
-  longitude: Yup.number()
-    .nullable()
-    .max(9999999.9999999, 'Longitude must be a decimal number')
-    .optional(),
-  latitude: Yup.number()
-    .nullable()
-    .max(9999999.9999999, 'Latitude must be a decimal number')
-    .optional()
+  village_id: Yup.number().integer('Invalid Village').required('Village is required')
 });
 
 const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
   const [gloablError, setGlobalError] = useState<string>('');
-  const [locationLoader, setLocationLoader] = useState(false);
   const { singleActionCus: customer, isLoading: customerLoader } = useSelector(
     (state) => state.customer
   );
@@ -87,8 +80,6 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
           ? { value: customer?.village.id, name: customer?.village.name }
           : undefined
         : '',
-      longitude: isEdit ? customer?.longitude || undefined : undefined,
-      latitude: isEdit ? customer?.latitude || undefined : undefined,
       phone: isEdit ? customer?.phone || '' : '',
       isWhatsappSameAsPhone: false,
       whatsapp_number: isEdit ? customer?.whatsapp_number || '' : '',
@@ -102,8 +93,6 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
         name: values?.name,
         address: values?.address,
         village_id: values?.village_id,
-        longitude: values?.longitude,
-        latitude: values?.latitude,
         phone: values?.phone,
         whatsapp_number: values?.whatsapp_number,
         email: values?.email
@@ -128,25 +117,6 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
       }
     }
   });
-
-  const handleGetLocation = () => {
-    setLocationLoader(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setFieldValue('latitude', position.coords.latitude.toString());
-          setFieldValue('longitude', position.coords.longitude.toString());
-        },
-        (error) => {
-          alert('Error getting location: ' + error.message);
-        }
-      );
-    } else {
-      alert('Geolocation is not supported by this browser.');
-    }
-    setLocationLoader(false);
-  };
-
   return (
     <ComponentCard title={isEdit ? 'Customer Edit' : 'Customer Add'}>
       {gloablError && <Alert message={gloablError} type="error" />}
@@ -168,6 +138,7 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
             <div className="col-span-2">
               <Label>Village</Label>
               <SelectComponent
+                error={touched.village_id && !!errors.village_id}
                 defaultValue={
                   customer?.village && isEdit
                     ? { value: customer.village.id, label: customer.village.name }
@@ -178,7 +149,6 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
                 isSearchable
                 isLoading={isLoading}
                 onChange={(e) => {
-                  console.log('e', e);
                   setFieldValue('village_id', e.value);
                 }}
               />
@@ -193,7 +163,7 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
                 onChange={(e) => {
                   handleChange(e);
                   if (values.isWhatsappSameAsPhone) {
-                    setFieldValue('whatsapp_number', values.phone);
+                    setFieldValue('whatsapp_number', e.target.value);
                   }
                 }}
                 onBlur={handleBlur}
@@ -236,45 +206,6 @@ const CustomerAddEdit = ({ isEdit = false }: { isEdit: boolean }) => {
                 name="email"
                 hint={errors.email}
               />
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <Label>Longitude</Label>
-              <Input
-                type="text"
-                error={touched.longitude && errors.longitude ? true : false}
-                value={values.longitude}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="longitude"
-                hint={errors.longitude}
-                disabled
-              />
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <Label>Latitude</Label>
-              <Input
-                type="text"
-                error={touched.latitude && errors.latitude ? true : false}
-                value={values.latitude}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="latitude"
-                hint={errors.latitude}
-                disabled
-              />
-            </div>
-            <div>
-              <Button
-                onClick={handleGetLocation}
-                startIcon={
-                  <RefreshIcon
-                    className={`w-5 h-5  text-white ${locationLoader ? 'animate-spin' : ''}`}
-                  />
-                }
-                size="sm"
-                variant="secondary">
-                Get Location
-              </Button>
             </div>
             <div className="col-span-2">
               <Label>Address</Label>

@@ -1,19 +1,14 @@
 'use client';
+import React, { useCallback, useState } from 'react';
 import CustomTable from '@/components/tables/CustomTable';
+import Button from '@/components/ui/button/Button';
 import { Modal } from '@/components/ui/modal';
+
+import CategoryModal from './CategoryModal';
 import { useModal } from '@/hooks/useModal';
 import { dispatch, useSelector } from '@/store';
-import categorySlice, {
-  deleteCategory,
-  getCategories,
-  getCategoriesById
-} from '@/store/slices/categorySlice';
-import React, { useEffect, useState } from 'react';
-import CategoryModal from './CategoryModal';
-import Button from '@/components/ui/button/Button';
+import { deleteCategory, getCategories, getCategoriesById } from '@/store/slices/categorySlice';
 import { SortOrderType, TableColumn, tableConfigType } from '@/types/customTableType';
-import Input from '@/components/form/input/InputField';
-import SearchInput from '@/components/form/input/SearchInput';
 
 export interface categoryType {
   category_id: number;
@@ -36,57 +31,61 @@ const CategoryListing = () => {
   const { isOpen, openModal, closeModal } = useModal();
   const [isEdit, setIsEdit] = useState(false);
 
-  const handleOnCLose = () => {
+  const handleOnClose = useCallback(() => {
     setIsEdit(false);
     closeModal();
-  };
+  }, [closeModal]);
 
-  const handleEdit = async (id: number | string) => {
+  const handleEdit = useCallback(async (id: number | string) => {
     setIsEdit(true);
-    await dispatch(getCategoriesById(id));
+    await dispatch(getCategoriesById(Number(id)));
     openModal();
-  };
+  }, []);
 
-  const handleDelete = async (id: number | string) => {
-    id = Number(id);
-    await dispatch(deleteCategory({ category_id: id }));
-  };
+  const handleDelete = useCallback(async (id: number | string) => {
+    await dispatch(deleteCategory({ category_id: Number(id) }));
+  }, []);
 
-  const handleAddCategory = () => {
+  const handleAddCategory = useCallback(() => {
+    setIsEdit(false);
     openModal();
-  };
-  const handleTableAction = async (
-    page: number,
-    order: SortOrderType,
-    orderBy: string,
-    rowsPerPage: number,
-    searchText?: string,
-    abortSignal?: AbortSignal
-  ) => {
-    await dispatch(getCategories(page, order, orderBy, rowsPerPage, searchText, abortSignal));
-  };
+  }, []);
+
+  const handleTableAction = useCallback(
+    async (
+      page: number,
+      order: SortOrderType,
+      orderBy: string,
+      rowsPerPage: number,
+      searchText?: string,
+      abortSignal?: AbortSignal
+    ) => {
+      await dispatch(getCategories(page, order, orderBy, rowsPerPage, searchText, abortSignal));
+    },
+    []
+  );
 
   return (
     <div>
       <CustomTable
         hasSr
         hasActions
-        handleDelete={handleDelete}
-        handleEdit={handleEdit}
         tableData={categories}
         tableColumn={tableColumn}
         tableConfig={tableConfig}
         isLoading={isLoading}
-        onTableAction={handleTableAction}
         totalRow={totalCategory}
+        handleDelete={handleDelete}
+        handleEdit={handleEdit}
+        onTableAction={handleTableAction}
         actionButtons={[
           <Button size="sm" onClick={handleAddCategory} key="add_cat">
             + Add Category
           </Button>
         ]}
       />
-      <Modal isOpen={isOpen} onClose={handleOnCLose} className="max-w-[700px] m-4">
-        <CategoryModal closeModal={handleOnCLose} isEdit={isEdit} />
+      <Modal isOpen={isOpen} onClose={handleOnClose} className="max-w-[700px] m-4">
+        <CategoryModal closeModal={handleOnClose} isEdit={isEdit} />
       </Modal>
     </div>
   );

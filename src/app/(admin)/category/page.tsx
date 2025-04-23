@@ -4,8 +4,7 @@ import React from 'react';
 
 export const metadata: Metadata = {
   title: 'Categories',
-  description:
-    'This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template'
+  description: ''
 };
 
 export default async function Categories() {

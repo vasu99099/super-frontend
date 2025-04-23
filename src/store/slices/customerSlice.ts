@@ -3,6 +3,7 @@ import { AppDispatch } from '..';
 import api from '@/utils/axios';
 import API_ROUTES from '@/constant/API_ROUTES';
 import { customerType, FarmType } from '@/types/customerType';
+import { toast } from 'react-toastify';
 
 interface CustomerState {
   customers: customerType[];
@@ -115,11 +116,15 @@ export const deleteCustomer = (payload: Partial<customerType>) => {
       const response = await api.delete(API_ROUTES.CUSTOMER.DELETE_CUSTOMER, { data: payload });
 
       if (response.status === 200 || response.status === 204) {
+        toast.success('Customer deleted successfully');
         await dispatch(getCustomers());
+      } else {
+        toast.error(response.data.message);
       }
 
       return response.data;
     } catch (error: any) {
+      toast.error(error.message);
       return error;
     }
   };

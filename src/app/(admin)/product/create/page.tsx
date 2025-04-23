@@ -1,5 +1,4 @@
 import AddEditProduct from '@/components/admin/product/AddEditProduct';
-import ProductListing from '@/components/admin/product/ProductListing';
 import { Metadata } from 'next';
 import React from 'react';
 

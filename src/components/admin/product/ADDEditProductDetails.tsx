@@ -120,7 +120,6 @@ const ADDEditProductDetails = ({ isEdit = false }: { isEdit: boolean }) => {
   const [productPostingStatus, setProductPostingStatus] = useState<UploadStatus>('RESET');
   const [gloablError, setGlobalError] = useState<string>('');
   const router = useRouter();
-  console.log('previewImages', previewImages);
   useEffect(() => {
     if (isEdit && editProduct?.ProductImage) {
       const updatedPreview = editProduct?.ProductImage?.map((img) => {
@@ -129,7 +128,6 @@ const ADDEditProductDetails = ({ isEdit = false }: { isEdit: boolean }) => {
           isPrimary: img.isPrimary
         };
       });
-      console.log('updatedPreview', updatedPreview);
       setPreviewImages(updatedPreview);
     }
   }, [isEdit, editProduct]);
@@ -164,15 +162,12 @@ const ADDEditProductDetails = ({ isEdit = false }: { isEdit: boolean }) => {
 
   // images
   const markAsPrimary = (index: number) => {
-    console.log('index', index);
     const updatedPreview = previewImages.map((img, i) => {
-      console.log('i,index', i, index);
       return {
         ...img,
         isPrimary: img.isPrimary && i === index ? false : i === index
       };
     });
-    console.log('previewImages v', updatedPreview);
     setPreviewImages(updatedPreview);
 
     const updatedFormikImages = (formikRef.current?.values.ProductImage ?? []).map((img, i) => ({
@@ -216,91 +211,88 @@ const ADDEditProductDetails = ({ isEdit = false }: { isEdit: boolean }) => {
         }}
         validationSchema={productSchema}
         onSubmit={async (values, { setFieldValue, resetForm, setErrors }) => {
-          if (values.ProductImage.length > 0) {
-            const existingImages: ProductImageStringType[] =
-              values.ProductImage.filter(isStringImage);
+          const existingImages: ProductImageStringType[] =
+            values.ProductImage.filter(isStringImage);
 
-            const newImages = values.ProductImage.filter(isFileImage);
-            try {
-              let uploadedImages: ProductImageStringType[] = [];
-              if (newImages.length > 0) {
-                setProductPostingStatus('IMAGE');
+          const newImages = values.ProductImage.filter(isFileImage);
+          try {
+            let uploadedImages: ProductImageStringType[] = [];
+            if (newImages.length > 0) {
+              setProductPostingStatus('IMAGE');
 
-                // Step 1: Get presigned URLs
-                const imagesList = newImages.map((img) => ({
-                  fileType: img.file.type,
-                  size: img.file.size,
-                  fileName: img.file.name
-                }));
-                const { data: presignedData } = await dispatch(getPresignProductUrl(imagesList));
+              // Step 1: Get presigned URLs
+              const imagesList = newImages.map((img) => ({
+                fileType: img.file.type,
+                size: img.file.size,
+                fileName: img.file.name
+              }));
+              const { data: presignedData } = await dispatch(getPresignProductUrl(imagesList));
 
-                // Step 2: Upload new images to S3
-                const uploaded = await Promise.all(
-                  presignedData.map(
-                    async ({
-                      fileKey,
-                      uploadUrl,
-                      fileName
-                    }: {
-                      fileKey: string;
-                      uploadUrl: string;
-                      fileName: string;
-                    }) => {
-                      const matched = newImages.find((img) => img.file.name === fileName);
-                      if (!matched) return null;
+              // Step 2: Upload new images to S3
+              const uploaded = await Promise.all(
+                presignedData.map(
+                  async ({
+                    fileKey,
+                    uploadUrl,
+                    fileName
+                  }: {
+                    fileKey: string;
+                    uploadUrl: string;
+                    fileName: string;
+                  }) => {
+                    const matched = newImages.find((img) => img.file.name === fileName);
+                    if (!matched) return null;
 
-                      const isUploaded = await uploadImageToS3(uploadUrl, matched.file);
-                      return isUploaded
-                        ? { file: fileKey, isPrimary: matched.isPrimary ?? false }
-                        : null;
-                    }
-                  )
-                );
+                    const isUploaded = await uploadImageToS3(uploadUrl, matched.file);
+                    return isUploaded
+                      ? { file: fileKey, isPrimary: matched.isPrimary ?? false }
+                      : null;
+                  }
+                )
+              );
 
-                uploadedImages = uploaded.filter(
-                  (img): img is ProductImageStringType => img !== null
-                );
+              uploadedImages = uploaded.filter(
+                (img): img is ProductImageStringType => img !== null
+              );
+            }
+            const allImages: ProductImageStringType[] = [...existingImages, ...uploadedImages];
+            setFieldValue('ProductImage', allImages);
+
+            const payload = {
+              ...values,
+              product_id: isEdit ? editProduct?.product_id : '',
+              ProductImage: allImages.map((img) => ({
+                url: img.file,
+                isPrimary: img.isPrimary ?? false
+              }))
+            };
+            if (!isEdit) {
+              delete payload.product_id;
+            }
+            setProductPostingStatus(isEdit ? 'PRODUCT_UPDATE' : 'PRODUCT_ADD');
+            const response = isEdit
+              ? await dispatch(UpdateProduct(payload))
+              : await dispatch(AddProduct(payload));
+            if (response.success) {
+              if (isEdit) {
+                router.push(ROUTE_PATH.ADMIN.product.INDEX);
               }
-              const allImages: ProductImageStringType[] = [...existingImages, ...uploadedImages];
-              setFieldValue('ProductImage', allImages);
-
-              const payload = {
-                ...values,
-                product_id: isEdit ? editProduct?.product_id : '',
-                ProductImage: allImages.map((img) => ({
-                  url: img.file,
-                  isPrimary: img.isPrimary ?? false
-                }))
-              };
-              if (!isEdit) {
-                delete payload.product_id;
-              }
-              setProductPostingStatus(isEdit ? 'PRODUCT_UPDATE' : 'PRODUCT_ADD');
-              const response = isEdit
-                ? await dispatch(UpdateProduct(payload))
-                : await dispatch(AddProduct(payload));
-              if (response.success) {
-                if (isEdit) {
-                  router.push(ROUTE_PATH.ADMIN.product.INDEX);
-                }
+              setGlobalError('');
+              resetForm();
+              setPreviewImages([]);
+              setProductPostingStatus('RESET');
+            } else {
+              if (typeof response.message === 'object') {
                 setGlobalError('');
-                resetForm();
-                setPreviewImages([]);
-                setProductPostingStatus('RESET');
+                setErrors(response?.message);
               } else {
-                if (typeof response.message === 'object') {
-                  setGlobalError('');
-                  setErrors(response?.message);
-                } else {
-                  setGlobalError(response.message);
-                }
-                setProductPostingStatus('ERROR');
+                setGlobalError(response.message);
               }
-            } catch (e) {
               setProductPostingStatus('ERROR');
             }
+          } catch (e) {
+            setProductPostingStatus('ERROR');
           }
-          console.log(values);
         }}>
         {({
           values,
@@ -312,7 +304,6 @@ const ADDEditProductDetails = ({ isEdit = false }: { isEdit: boolean }) => {
           setFieldValue,
           isSubmitting
         }) => {
-          console.log('values', values);
           return (
             <>
               <div className="sm:col-span-2 pr-4">
@@ -326,7 +317,6 @@ const ADDEditProductDetails = ({ isEdit = false }: { isEdit: boolean }) => {
                         labelKey="name"
                         ValueKey="category_id"
                         name="categoryId"
-                        isSearchable
                         error={!!errors.categoryId && touched.categoryId}
                         onChange={(e) => {
                           setFieldValue('categoryId', e.category_id);
@@ -500,8 +490,6 @@ const ADDEditProductDetails = ({ isEdit = false }: { isEdit: boolean }) => {
           )}
         </div>
       </Modal>
-
-      {/* Right Section */}
     </div>
   );
 };

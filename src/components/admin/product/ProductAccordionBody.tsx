@@ -1,9 +1,9 @@
-import Badge from '@/components/ui/badge/Badge';
-import { S3_BASE_URL } from '@/constant/Constants';
-import StartIcon from '@/icons/components/StartIcon';
-import { ProductType } from '@/store/slices/productSlice';
-import Image from 'next/image';
 import React from 'react';
+import Image from 'next/image';
+
+import Badge from '@/components/ui/badge/Badge';
+import { ProductType } from '@/store/slices/productSlice';
+import { S3_BASE_URL } from '@/constant/Constants';
 
 const ProductAccordionBody = ({ col }: { col?: ProductType }) => {
   if (!col?.ProductImage?.length) {

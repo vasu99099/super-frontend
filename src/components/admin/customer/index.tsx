@@ -13,6 +13,8 @@ import { Modal } from '@/components/ui/modal';
 import AddFarm from './AddFarm';
 import { FarmType, customerType } from '@/types/customerType';
 import FarmAccordionBody from './FarmAccordionBody';
+import CustomDropdown from '@/components/ui/dropdown/CustomDorpdown';
+import EyeIcon from '@/icons/components/EyeIcon';
 
 const tableColumn: TableColumn[] = [
   { name: 'Customer Name', key: 'name', sortable: true },
@@ -111,6 +113,18 @@ const Customer = () => {
             <Button
               size="sm"
               onClick={() => {
+                handleViewCustomer(row as customerType);
+              }}
+              key="add_view"
+              variant="transparent"
+              className="cursor-pointer !p-0 border-0"
+              /*  title="View Customer" */
+            >
+              <EyeIcon />
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
                 handleAddSuggestion(row as customerType);
               }}
               key="add_sugg"
@@ -127,16 +141,6 @@ const Customer = () => {
               className="!p-1 !px-2 border"
               variant="secondary">
               + Farm
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                handleViewCustomer(row as customerType);
-              }}
-              key="add_view"
-              className="!p-1 !px-2 border"
-              variant="secondary">
-              View
             </Button>
           </>
         )}

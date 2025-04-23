@@ -200,7 +200,10 @@ export const deleteProduct = (
       });
 
       if (response.status === 200 || response.status === 204) {
-        await dispatch(getProducts(page, order, orderBy, pageSize, searchText)); // Ensure categories are updated after deletion
+        toast.success('Product deleted successfully');
+        await dispatch(getProducts(page, order, orderBy, pageSize, searchText));
+      } else {
+        toast.error(response.data.message);
       }
 
       return response.data;

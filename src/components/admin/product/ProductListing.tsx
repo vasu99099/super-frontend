@@ -1,22 +1,15 @@
 'use client';
-import CustomTable from '@/components/tables/CustomTable';
-import { Modal } from '@/components/ui/modal';
-import { useModal } from '@/hooks/useModal';
-import { dispatch, useSelector } from '@/store';
-import categorySlice, {
-  deleteCategory,
-  getCategories,
-  getCategoriesById
-} from '@/store/slices/categorySlice';
-import React, { useEffect, useState } from 'react';
-import Button from '@/components/ui/button/Button';
-import { SortOrderType, TableColumn, tableConfigType } from '@/types/customTableType';
-import Input from '@/components/form/input/InputField';
-import SearchInput from '@/components/form/input/SearchInput';
-import { deleteProduct, getProducts } from '@/store/slices/productSlice';
-import ProductAccordionBody from './ProductAccordionBody';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+
+import ProductAccordionBody from './ProductAccordionBody';
+import CustomTable from '@/components/tables/CustomTable';
+import Button from '@/components/ui/button/Button';
+
+import { dispatch, useSelector } from '@/store';
+import { deleteProduct, getProducts } from '@/store/slices/productSlice';
 import { ROUTE_PATH } from '@/constant/Routes';
+import { SortOrderType, TableColumn, tableConfigType } from '@/types/customTableType';
 
 export interface categoryType {
   category_id: number;
@@ -37,7 +30,6 @@ const tableConfig: tableConfigType = {
 
 const ProductListing = () => {
   const { products = [], totalProduct, isLoading = true } = useSelector((state) => state.product);
-  const [isEdit, setIsEdit] = useState(false);
   const router = useRouter();
 
   const handleDelete = async (

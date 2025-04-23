@@ -1,9 +1,10 @@
+import React from 'react';
+import Image from 'next/image';
+
+import { ProductImageStringType } from './ADDEditProductDetails';
+
 import { DeleteIcon } from '@/icons/components/DeleteIcon';
 import StartIcon from '@/icons/components/StartIcon';
-import Image from 'next/image';
-import React from 'react';
-import { ProductImageStringType, ProductImageType } from './ADDEditProductDetails';
-
 interface ProductImagesProps {
   previewImages: ProductImageStringType[];
   onMarkPrimary: (index: number) => void;

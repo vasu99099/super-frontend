@@ -1,4 +1,3 @@
-import Customer from '@/components/admin/customer';
 import CustomerDetailsIndex from '@/components/admin/customer/details';
 import { Metadata } from 'next';
 import React from 'react';

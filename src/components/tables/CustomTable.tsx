@@ -24,6 +24,7 @@ import TruncatedText from '../common/TruncatedText';
 import { getNestedValue } from '@/utils/util';
 import ArrowDown from '@/icons/components/ArrowDown';
 import ArrowUp from '@/icons/components/ArrowUp';
+import CustomDropdown from '../ui/dropdown/CustomDorpdown';
 
 function CustomTable(props: TableProps) {
   const {
